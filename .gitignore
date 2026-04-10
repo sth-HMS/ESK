@@ -1,0 +1,9 @@
+.env
+data/
+server.out.txt
+server.err.txt
+server-log.txt
+node_modules/
+tmp_*/
+tmp_export_test.html
+*.log

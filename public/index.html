@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="is">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ESK vinnslukerfi</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div>
+          <p class="eyebrow">ESK</p>
+          <h1>Eignaskipta-vinnslukerfi</h1>
+          <p class="muted">Prototype fyrir innlestur, vistun og samningsdrög.</p>
+        </div>
+        <nav id="nav" class="nav hidden">
+          <button data-view="dashboard">Mál</button>
+          <button data-view="project">Vinnsla</button>
+          <button data-view="admin">Admin</button>
+        </nav>
+        <div class="sidebar-footer">
+          <div id="userBadge" class="user-badge hidden"></div>
+          <button id="logoutBtn" class="ghost hidden">Skrá út</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <section id="authView" class="panel auth-panel">
+          <div class="auth-grid">
+            <form id="loginForm" class="card">
+              <h2>Innskráning</h2>
+              <label>Netfang<input name="email" type="email" required /></label>
+              <label>Lykilorð<input name="password" type="password" required /></label>
+              <button type="submit">Skrá inn</button>
+            </form>
+
+            <form id="registerForm" class="card accent">
+              <h2>Nýskráning</h2>
+              <label>Nafn<input name="name" required /></label>
+              <label>Netfang<input name="email" type="email" required /></label>
+              <label>Lykilorð<input name="password" type="password" required /></label>
+              <button type="submit">Stofna aðgang</button>
+            </form>
+          </div>
+        </section>
+
+        <section id="dashboardView" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Yfirlit</p>
+                <h2>Mín mál</h2>
+              </div>
+              <button id="refreshProjectsBtn" class="ghost">Endurlesa</button>
+            </div>
+            <form id="projectCreateForm" class="inline-form">
+              <input name="name" placeholder="Heiti máls" required />
+              <input name="address" placeholder="Heimilisfang" />
+              <input name="municipality" placeholder="Sveitarfélag" />
+              <button type="submit">Stofna mál</button>
+            </form>
+            <div id="projectsList" class="project-list"></div>
+          </div>
+        </section>
+
+        <section id="projectView" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Mál</p>
+                <h2 id="projectTitle">Veldu mál</h2>
+              </div>
+              <button id="generateDocumentBtn">Mynda drög</button>
+            </div>
+
+            <div class="grid-two">
+              <div class="card">
+                <h3>Grunnupplýsingar</h3>
+                <form id="projectMetaForm">
+                  <label>Heiti máls<input name="name" /></label>
+                  <label>Heimilisfang<input name="address" /></label>
+                  <label>Sveitarfélag<input name="municipality" /></label>
+                  <label>Staða
+                    <select name="status">
+                      <option value="draft">Draft</option>
+                      <option value="review">Review</option>
+                      <option value="ready">Ready</option>
+                    </select>
+                  </label>
+                  <button type="submit">Vista breytingar</button>
+                </form>
+              </div>
+
+              <div class="card">
+                <h3>Skjöl</h3>
+                <form id="excelUploadForm" class="upload-form">
+                  <label>Excel skráningartafla<input id="excelFileInput" name="file" type="file" accept=".xlsx,.xlsm" required /></label>
+                  <div class="muted">Skráin hleðst upp sjálfkrafa þegar þú velur hana.</div>
+                </form>
+                <form id="pdfUploadForm" class="upload-form">
+                  <label>PDF teikning<input id="pdfFileInput" name="file" type="file" accept="application/pdf" required /></label>
+                  <div class="muted">PDF fylgiskjal hleðst upp sjálfkrafa þegar þú velur það.</div>
+                </form>
+                <div id="fileSummary" class="muted"></div>
+              </div>
+            </div>
+
+            <div class="grid-two">
+              <div class="card">
+                <h3>Forsíða og útgefandi</h3>
+                <form id="coverForm">
+                  <label>Texti um hita og rafmagnskostnað<textarea name="heatingElectricityText" rows="4"></textarea></label>
+                  <label>Texti um kvaðir og réttindi<textarea name="easementsText" rows="4"></textarea></label>
+                  <label>Titill skjals<input name="title" placeholder="EIGNASKIPTAYFIRLÝSING" /></label>
+                  <label>Heiti eignar<input name="propertyName" placeholder="t.d. Ráðhústorg 7" /></label>
+                  <label>Matshluti<input name="matshluti" placeholder="t.d. 01" /></label>
+                  <label>Landeignanúmer<input name="landeignNumber" /></label>
+                  <label>Fasteignanúmer<input name="fasteignNumber" /></label>
+                  <label>Nafn útgefanda<input name="preparedByName" /></label>
+                  <label>Fyrirtæki<input name="preparedByCompany" /></label>
+                  <label>Titill / staða<input name="preparedByTitle" /></label>
+                  <label>Leyfisnúmer<input name="preparedByLicenseNumber" /></label>
+                  <label>Kennitala leyfishafa<input name="preparedByKennitala" /></label>
+                  <label>Netfang<input name="preparedByEmail" /></label>
+                  <label>Sími<input name="preparedByPhone" /></label>
+                  <label>Athugasemd í botni skjals<textarea name="footerNote" rows="3"></textarea></label>
+                  <button type="submit">Vista forsíðuupplýsingar</button>
+                </form>
+              </div>
+
+              <div class="card">
+                <h3>Myndefni og PDF útflutningur</h3>
+                <form id="logoUploadForm" class="upload-form">
+                  <label>Lógó<input id="logoFileInput" name="file" type="file" accept=".png,.jpg,.jpeg,.webp,.svg" required /></label>
+                  <div class="muted">Lógó hleðst upp sjálfkrafa þegar þú velur skrá.</div>
+                </form>
+                <form id="coverImageUploadForm" class="upload-form">
+                  <label>Forsíðumynd á forsíðu<input id="coverImageFileInput" name="file" type="file" accept=".png,.jpg,.jpeg,.webp,.svg" required /></label>
+                  <div class="muted">Þetta er önnur mynd en lógóið. Hún hleðst upp sjálfkrafa þegar þú velur skrá.</div>
+                </form>
+                <div id="coverAssetSummary" class="muted"></div>
+                <div class="actions">
+                  <a id="downloadPdfLink" class="button-link" href="#" target="_blank" rel="noopener">Sækja PDF</a>
+                  <a id="previewHtmlLink" class="button-link ghost-link" href="#" target="_blank" rel="noopener">Forskoða HTML</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid-two">
+              <div class="card">
+                <div class="card-header">
+                  <h3>Excel yfirlit</h3>
+                  <span class="muted">Forskoðun á innlesnum vinnublöðum</span>
+                </div>
+                <div id="workbookSummary" class="stack"></div>
+              </div>
+
+              <div class="card">
+                <div class="card-header">
+                  <h3>Fylgiskjöl og viðaukar</h3>
+                  <span class="muted">PDF skjöl sem fylgja lokaskjalinu</span>
+                </div>
+                <div id="pdfList" class="stack"></div>
+                <div class="muted">
+                  Hlaðið inn teikningum, eldri eignaskiptayfirlýsingum eða öðrum PDF gögnum sem eiga að fylgja málinu sem viðauki.
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h3>Samningsdrög</h3>
+                <span class="muted">Handvirk yfirferð áður en úttak er staðfest</span>
+              </div>
+              <div class="card accent">
+                <div class="card-header">
+                  <h3>AI aðstoð</h3>
+                  <span id="aiStatus" class="muted">Sæki stöðu...</span>
+                </div>
+                <label>Leiðbeiningar til botta
+                  <textarea id="aiNotes" rows="4" placeholder="t.d. leggja meiri áherslu á sameign sumra eða hafa textann styttri"></textarea>
+                </label>
+                <div class="actions">
+                  <button id="generateAiBtn">Bæta texta með AI</button>
+                </div>
+              </div>
+              <textarea id="documentEditor" rows="18" placeholder="Myndaðu drög eða skrifaðu texta hér."></textarea>
+              <div class="actions">
+                <button id="generateDocumentBtn" class="ghost">Mynda grunntexta</button>
+                <button id="saveDocumentBtn" class="ghost">Vista texta</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="adminView" class="hidden">
+          <div class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Admin</p>
+                <h2>Notendur og verkefni</h2>
+              </div>
+              <button id="refreshAdminBtn" class="ghost">Endurlesa</button>
+            </div>
+            <div class="grid-two">
+              <div class="card">
+                <h3>Notendur</h3>
+                <div id="adminUsersList" class="stack"></div>
+              </div>
+              <div class="card">
+                <h3>Verkefni</h3>
+                <div id="adminProjectsList" class="stack"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="/app.js"></script>
+  </body>
+  </html>
