@@ -2,16 +2,30 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 
-const DATA_DIR = path.join(__dirname, "..", "data");
-const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
-const USERS_FILE = path.join(DATA_DIR, "users.json");
-const SESSIONS_FILE = path.join(DATA_DIR, "sessions.json");
-const PROJECTS_FILE = path.join(DATA_DIR, "projects.json");
+function getDataDir() {
+  return process.env.DATA_DIR || path.join(__dirname, "..", "data");
+}
+
+function getUploadsDir() {
+  return path.join(getDataDir(), "uploads");
+}
+
+function getUsersFile() {
+  return path.join(getDataDir(), "users.json");
+}
+
+function getSessionsFile() {
+  return path.join(getDataDir(), "sessions.json");
+}
+
+function getProjectsFile() {
+  return path.join(getDataDir(), "projects.json");
+}
 
 function ensureDataFiles() {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-  for (const file of [USERS_FILE, SESSIONS_FILE, PROJECTS_FILE]) {
+  fs.mkdirSync(getDataDir(), { recursive: true });
+  fs.mkdirSync(getUploadsDir(), { recursive: true });
+  for (const file of [getUsersFile(), getSessionsFile(), getProjectsFile()]) {
     if (!fs.existsSync(file)) {
       fs.writeFileSync(file, "[]\n", "utf8");
     }
@@ -27,7 +41,7 @@ function writeJson(file, value) {
 }
 
 function listUsers() {
-  return readJson(USERS_FILE);
+  return readJson(getUsersFile());
 }
 
 function createUser(input) {
@@ -38,7 +52,7 @@ function createUser(input) {
     ...input,
   };
   users.push(user);
-  writeJson(USERS_FILE, users);
+  writeJson(getUsersFile(), users);
   return user;
 }
 
@@ -57,12 +71,12 @@ function updateUser(userId, changes) {
     return null;
   }
   users[index] = { ...users[index], ...changes };
-  writeJson(USERS_FILE, users);
+  writeJson(getUsersFile(), users);
   return users[index];
 }
 
 function listSessions() {
-  return readJson(SESSIONS_FILE);
+  return readJson(getSessionsFile());
 }
 
 function createSession(userId) {
@@ -74,7 +88,7 @@ function createSession(userId) {
     lastSeenAt: new Date().toISOString(),
   };
   sessions.push(session);
-  writeJson(SESSIONS_FILE, sessions);
+  writeJson(getSessionsFile(), sessions);
   return session;
 }
 
@@ -83,7 +97,7 @@ function getSession(id) {
 }
 
 function deleteSession(id) {
-  writeJson(SESSIONS_FILE, listSessions().filter((session) => session.id !== id));
+  writeJson(getSessionsFile(), listSessions().filter((session) => session.id !== id));
 }
 
 function touchSession(id) {
@@ -91,12 +105,12 @@ function touchSession(id) {
   const index = sessions.findIndex((session) => session.id === id);
   if (index !== -1) {
     sessions[index].lastSeenAt = new Date().toISOString();
-    writeJson(SESSIONS_FILE, sessions);
+    writeJson(getSessionsFile(), sessions);
   }
 }
 
 function listProjects() {
-  return readJson(PROJECTS_FILE);
+  return readJson(getProjectsFile());
 }
 
 function listProjectsForUser(user) {
@@ -136,8 +150,8 @@ function createProject(input) {
     ...input,
   };
   projects.push(project);
-  writeJson(PROJECTS_FILE, projects);
-  fs.mkdirSync(path.join(UPLOADS_DIR, project.id), { recursive: true });
+  writeJson(getProjectsFile(), projects);
+  fs.mkdirSync(path.join(getUploadsDir(), project.id), { recursive: true });
   return project;
 }
 
@@ -152,7 +166,7 @@ function deleteProject(id) {
     return null;
   }
   const next = projects.filter((item) => item.id !== id);
-  writeJson(PROJECTS_FILE, next);
+  writeJson(getProjectsFile(), next);
   return project;
 }
 
@@ -167,7 +181,7 @@ function updateProject(id, changes) {
     ...changes,
     updatedAt: new Date().toISOString(),
   };
-  writeJson(PROJECTS_FILE, projects);
+  writeJson(getProjectsFile(), projects);
   return projects[index];
 }
 
@@ -177,7 +191,7 @@ function sanitizeFilename(name) {
 
 function storeProjectFile(projectId, filename, content) {
   const safeName = `${Date.now()}_${sanitizeFilename(filename)}`;
-  const absolutePath = path.join(UPLOADS_DIR, projectId, safeName);
+  const absolutePath = path.join(getUploadsDir(), projectId, safeName);
   fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
   fs.writeFileSync(absolutePath, content);
   return {

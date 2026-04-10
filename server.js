@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const crypto = require("node:crypto");
 const { spawnSync } = require("node:child_process");
 const { loadEnvFile } = require("./src/env");
+loadEnvFile();
 const {
   ensureDataFiles,
   listUsers,
@@ -31,15 +32,15 @@ const { repairText } = require("./src/encoding");
 const { renderProjectHtml } = require("./src/export-modern");
 const { renderProjectPdf } = require("./src/pdf-renderer");
 
-const HOST = "127.0.0.1";
+const HOST = process.env.HOST || "0.0.0.0";
 const PORT = Number(process.env.PORT || 3000);
 const PUBLIC_DIR = path.join(__dirname, "public");
-const UPLOADS_DIR = path.join(__dirname, "data", "uploads");
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
+const UPLOADS_DIR = path.join(DATA_DIR, "uploads");
 const DEFAULT_HMS_LOGO_PDF = "C:\\Users\\saevar.halldorsson\\OneDrive - HMS\\Documents\\MARKAÐSEFNI 2026\\HMS logopakki 0226\\PDF\\HMS stikkord horizontal\\HMS_stikkord_horizontal_blue-green.pdf";
 const DEFAULT_HMS_LOGO_PNG = path.join(PUBLIC_DIR, "assets", "hms-logo-default.png");
 
 ensureDataFiles();
-loadEnvFile();
 ensureDefaultBrandAssets();
 
 function ensureDefaultBrandAssets() {

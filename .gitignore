@@ -6,4 +6,5 @@ server-log.txt
 node_modules/
 tmp_*/
 tmp_export_test.html
+data-render-test/
 *.log
