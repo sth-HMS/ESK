@@ -256,8 +256,7 @@ async function renderProjectPdf(project) {
       continue;
     }
     const separator = document.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
-    separator.drawText(`Viðauki: ${cleanText(appendix.filename)}`, { x: MARGIN, y: PAGE_HEIGHT - 100, size: 22, font: boldFont, color: rgb(0.09, 0.19, 0.33) });
-    separator.drawText("Eftirfarandi PDF var saumað aftan við meginhluta skjalsins.", { x: MARGIN, y: PAGE_HEIGHT - 130, size: 12, font: regularFont, color: rgb(0.36, 0.45, 0.57) });
+    separator.drawText("Viðaukar", { x: MARGIN, y: PAGE_HEIGHT - 100, size: 22, font: boldFont, color: rgb(0.09, 0.19, 0.33) });
     try {
       const source = await PDFDocument.load(fs.readFileSync(appendixPath), { ignoreEncryption: true });
       const copiedPages = await document.copyPages(source, source.getPageIndices());

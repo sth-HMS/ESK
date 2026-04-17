@@ -119,15 +119,37 @@ function setView(name) {
 
 function renderNav() {
   nav.classList.toggle("hidden", !state.user);
-  document.getElementById("logoutBtn").classList.toggle("hidden", !state.user);
+  const logoutBtn = document.getElementById("logoutBtn");
+  logoutBtn.classList.toggle("hidden", !state.user);
   const badge = document.getElementById("userBadge");
   badge.classList.toggle("hidden", !state.user);
   if (state.user) {
-    badge.innerHTML = `<strong>${state.user.name}</strong><br><span class="muted">${state.user.email} · ${state.user.role}</span>`;
+    const initials = state.user.name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() || "")
+      .join("");
+    badge.title = `${state.user.name} | ${state.user.email} | ${state.user.role}`;
+    badge.innerHTML = `<strong>${initials || "U"}</strong>`;
   }
+  const iconMap = {
+    dashboard: { label: "Mál", iconClass: "projects" },
+    project: { label: "Vinnsla", iconClass: "project" },
+    admin: { label: "Admin", iconClass: "admin" },
+  };
   [...nav.querySelectorAll("button")].forEach((button) => {
     button.classList.toggle("hidden", button.dataset.view === "admin" && state.user?.role !== "admin");
+    const config = iconMap[button.dataset.view];
+    if (config) {
+      button.title = config.label;
+      button.setAttribute("aria-label", config.label);
+      button.innerHTML = `<span class="nav-icon ${config.iconClass}" aria-hidden="true"></span><span class="visually-hidden">${config.label}</span>`;
+    }
   });
+  logoutBtn.title = "Skrá út";
+  logoutBtn.setAttribute("aria-label", "Skrá út");
+  logoutBtn.innerHTML = `<span class="nav-icon project" aria-hidden="true"></span><span class="visually-hidden">Skrá út</span>`;
   repairDomText();
 }
 

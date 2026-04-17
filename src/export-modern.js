@@ -127,6 +127,10 @@ function upsertSections(existingSections, generatedSections) {
   return [...generatedSections, ...preserved];
 }
 
+function stripSectionNumber(heading) {
+  return repairText(String(heading || "")).replace(/^\s*\d+\.\s*/, "").trim();
+}
+
 function resolveProjectData(project) {
   const extracted = project.parsedWorkbook?.extracted || {};
   const metadata = extracted.metadata || {};
@@ -258,58 +262,58 @@ function buildSectionsV2(project, resolved = resolveProjectData(project)) {
 
 function buildSectionList(project, { cover, units, descriptions, sameign }) {
   const intro = [
-    `Yfirlýsing þessi tekur til eignarinnar ${cover.propertyName || project.name}.`,
-    cover.matshluti ? `Um er að ræða matshluta ${cover.matshluti}.` : "",
-    cover.landeignNumber ? `Landeignanúmer er ${cover.landeignNumber}.` : "",
-    cover.fasteignNumber ? `Fasteignanúmer er ${cover.fasteignNumber}.` : "",
-    units.length ? `Alls fundust ${units.length} séreignir eða eignarhlutir í innlesnum gögnum.` : "",
+    `Yfirl?sing ?essi tekur til eignarinnar ${cover.propertyName || project.name}.`,
+    cover.matshluti ? `Um er a? r??a matshluta ${cover.matshluti}.` : "",
+    cover.landeignNumber ? `Landeignan?mer er ${cover.landeignNumber}.` : "",
+    cover.fasteignNumber ? `Fasteignan?mer er ${cover.fasteignNumber}.` : "",
+    units.length ? `Alls fundust ${units.length} s?reignir e?a eignarhlutir ? innlesnum g?gnum.` : "",
   ].filter(Boolean).join(" ");
 
   const ownershipLines = units.length
     ? sortByOwnership(units, (row) => row.ownership).map((row) => [
         ownershipDisplay(row.ownership),
-        row.usage || "séreign",
-        row.fasteignanumer ? `fasteignanúmer ${row.fasteignanumer}` : "",
-        row.birtFlatarmal ? `birt flatarmál ${formatNumber(row.birtFlatarmal)} m²` : "",
-        row.hlutfallMhl ? `hlutfall í mhl. ${formatNumber(row.hlutfallMhl)}%` : "",
+        row.usage || "s?reign",
+        row.fasteignanumer ? `fasteignan?mer ${row.fasteignanumer}` : "",
+        row.birtFlatarmal ? `birt flatarm?l ${formatNumber(row.birtFlatarmal)} m?` : "",
+        row.hlutfallMhl ? `hlutfall ? mhl. ${formatNumber(row.hlutfallMhl)}%` : "",
       ].filter(Boolean).join(" | "))
-    : ["Ekki tókst að lesa út fullnægjandi upplýsingar um séreignir úr skráningartöflu."];
+    : ["Ekki t?kst a? lesa ?t fulln?gjandi uppl?singar um s?reignir ?r skr?ningart?flu."];
 
   const descriptionLines = descriptions.length
     ? sortByOwnership(descriptions, (row) => row.ownership).map((row) => {
         const items = (row.items || [])
           .filter((item) => item.usage && !/notkun/i.test(item.usage))
-          .map((item) => item.birtFlatarmal ? `${item.usage} (${formatNumber(item.birtFlatarmal)} m²)` : item.usage)
+          .map((item) => item.birtFlatarmal ? `${item.usage} (${formatNumber(item.birtFlatarmal)} m?)` : item.usage)
           .join(", ");
-        return `${ownershipDisplay(row.ownership)}: ${items || "nánari lýsing vantar"}`;
+        return `${ownershipDisplay(row.ownership)}: ${items || "n?nari l?sing vantar"}`;
       })
-    : ["Nánari lýsing séreigna fannst ekki í innlesnum gögnum."];
+    : ["N?nari l?sing s?reigna fannst ekki ? innlesnum g?gnum."];
 
   const sameignLines = sameign.length
     ? sortByOwnership(sameign, (row) => row.code).map((row) => [
         row.code,
         row.usage,
-        row.ownerGroup ? `tilheyrir hópi ${row.ownerGroup}` : "",
+        row.ownerGroup ? `tilheyrir h?pi ${row.ownerGroup}` : "",
         row.share ? `hlutur ${formatNumber(row.share)}` : "",
       ].filter(Boolean).join(" | "))
-    : ["Engar færslur fundust um sameign sumra í innlesnum gögnum."];
+    : ["Engar f?rslur fundust um sameign sumra ? innlesnum g?gnum."];
 
   return [
-    { heading: "1. Almennar upplýsingar", body: intro || `Drög að eignaskiptayfirlýsingu fyrir ${cover.propertyName || project.name}.` },
-    { heading: "2. Séreignir og eignarhald", body: ownershipLines.join("\n") },
-    { heading: "3. Lýsing séreigna", body: descriptionLines.join("\n") },
-    { heading: "4. Sameign og sameign sumra", body: sameignLines.join("\n") },
+    { heading: "Almennar uppl?singar", body: intro || `Dr?g a? eignaskiptayfirl?singu fyrir ${cover.propertyName || project.name}.` },
+    { heading: "S?reignir og eignarhald", body: ownershipLines.join("\n") },
+    { heading: "L?sing s?reigna", body: descriptionLines.join("\n") },
+    { heading: "Sameign og sameign sumra", body: sameignLines.join("\n") },
     {
-      heading: "5. Yfirferð og staðfesting",
-      body: "Yfirlýsingin byggir á innlesnum gögnum úr skráningartöflu og þeim upplýsingum sem vistaðar hafa verið með málinu. Fara þarf sérstaklega yfir auðkenni eigna, hlutfallstölur, sameign og fylgiskjöl áður en skjalið er fullgilt og afhent til undirritunar.",
+      heading: "Yfirfer? og sta?festing",
+      body: "Yfirl?singin byggir ? innlesnum g?gnum ?r skr?ningart?flu og ?eim uppl?singum sem vista?ar hafa veri? me? m?linu. Fara ?arf s?rstaklega yfir au?kenni eigna, hlutfallst?lur, sameign og fylgiskj?l ??ur en skjali? er fullgilt og afhent til undirritunar.",
     },
     {
-      heading: "6. Hita- og rafmagnskostnaður",
-      body: cover.heatingElectricityText || "Rafmagn og hiti eru aðgreind með mælum sem eru staðsettir innan þeirra eigna sem þeir tilheyra. Þar sem sameiginlegur kostnaður kann að falla til skal honum skipt samkvæmt samþykktum húsfélags og þeim gögnum sem fram koma í skráningartöflu og fylgiskjölum.",
+      heading: "Hita- og rafmagnskostna?ur",
+      body: cover.heatingElectricityText || "Rafmagn og hiti eru a?greind me? m?lum sem eru sta?settir innan ?eirra eigna sem ?eir tilheyra. ?ar sem sameiginlegur kostna?ur kann a? falla til skal honum skipt samkv?mt sam?ykktum h?sf?lags og ?eim g?gnum sem fram koma ? skr?ningart?flu og fylgiskj?lum.",
     },
     {
-      heading: "7. Kvaðir og réttindi",
-      body: cover.easementsText || "Lóðarréttindi og hlutdeild vegna baklóða, aðkomu, bílastæða, lagnaleiða og annarra sameiginlegra réttinda skulu fylgja þeirri skipan sem kemur fram í lóðarskjölum, aðaluppdráttum, skráningartöflu og öðrum fylgiskjölum málsins. Ekki er vitað um aðrar kvaðir eða réttindi en þær sem þar eru tilgreindar nema annað sé sérstaklega skráð í þinglýstum gögnum eða lóðarleigusamningi.",
+      heading: "Kva?ir og r?ttindi",
+      body: cover.easementsText || "L??arr?ttindi og hlutdeild vegna bakl??a, a?komu, b?last??a, lagnalei?a og annarra sameiginlegra r?ttinda skulu fylgja ?eirri skipan sem kemur fram ? l??arskj?lum, a?aluppdr?ttum, skr?ningart?flu og ??rum fylgiskj?lum m?lsins. Ekki er vita? um a?rar kva?ir e?a r?ttindi en ??r sem ?ar eru tilgreindar nema anna? s? s?rstaklega skr?? ? ?ingl?stum g?gnum e?a l??arleigusamningi.",
     },
   ];
 }
@@ -469,7 +473,7 @@ function renderProjectHtml(project, options = {}) {
       <div class="meta-card"><span class="meta-label">Leyfisnúmer</span><div class="meta-value">${escapeHtml(cover.preparedByLicenseNumber)}</div></div>
       <div class="meta-card"><span class="meta-label">Kennitala leyfishafa</span><div class="meta-value">${escapeHtml(cover.preparedByKennitala)}</div></div>
     </div>
-    ${sections.map((section) => `<div class="section"><h3>${escapeHtml(section.heading)}</h3><p>${escapeHtml(section.body)}</p></div>`).join("\n")}
+    ${sections.map((section, index) => `<div class="section"><h3>${escapeHtml(`${index + 1}. ${stripSectionNumber(section.heading)}`)}</h3><p>${escapeHtml(section.body)}</p></div>`).join("\n")}
     <div class="table-wrap">
       <div class="section">
         <h3>Yfirlit séreigna</h3>
